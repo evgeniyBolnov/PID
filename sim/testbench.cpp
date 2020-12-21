@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "../rtl/obj_dir/Vpid.h"
+#include "./obj_dir/Vpid.h"
 #include "math.h"
 
 #ifdef VM_TRACE
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 			top_module->reset = 1;
 		else
 			top_module->reset = 0;
-		top_module->enable = 0;
+		top_module->enable = 1;
 		top_module->clk = clock;
 		top_module->eval();
 #ifdef VM_TRACE
