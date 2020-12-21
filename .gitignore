@@ -2,3 +2,5 @@
 *.bak
 *.wlf
 /sim/work/
+/.vscode/
+/rtl/obj_dir/
