@@ -1,0 +1,4 @@
+/quartus/
+*.bak
+*.wlf
+/sim/work/
