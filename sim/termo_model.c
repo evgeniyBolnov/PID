@@ -2,7 +2,7 @@
 
 #define COEF 0.00001
 #define LOW_VALUE -45   
-#define SIGNAL_COEF 0.001
+#define SIGNAL_COEF 0.0001
 
 int get_temp(int signal) {
   static float valueSpeed, signalSpeed, value = 30;

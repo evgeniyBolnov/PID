@@ -5,10 +5,10 @@ module pid_tb;
 	logic clk   = 0;
 	logic reset = 0;
 
-	integer temperature    ;
-	integer control     = 0;
-	integer refer       = 0;
-	integer k           = 0;
+	logic signed [15:0] temperature    ;
+	logic signed [15:0] control     = 0;
+	logic signed [15:0] refer       = 0;
+	logic signed [15:0] k           = 0;
 
 	default clocking main @(posedge clk);
 	endclocking
@@ -18,28 +18,61 @@ module pid_tb;
 		begin
 			##1 reset = 1;
 			##2 reset = 0;
-			##100000 refer = 20;
-			##100000 refer = -20;
-			// ##100 refer = 40;
-			// ##100 refer = -40;
-			// ##100 refer = 80;
-			// ##100 refer = -45;
-			// ##100 refer = 180;
-			// ##100 refer = 0;
+			AMM_Master_inst.add_send(0, 0);
+			##300000 AMM_Master_inst.add_send(0,  20);
+			AMM_Master_inst.add_read(1);
+			@(AMM_Master_inst.read_complete);
+			$display("Readed temperature: %d", signed'(AMM_Master_inst.get_read_value()));
+			##300000 AMM_Master_inst.add_send(0, -20);
+			##300000 AMM_Master_inst.add_send(0,  40);
+			##300000 AMM_Master_inst.add_send(0, -40);
+			AMM_Master_inst.add_read(1);
+			@(AMM_Master_inst.read_complete);
+			$display("Readed temperature: %d", signed'(AMM_Master_inst.get_read_value()));
+			##300000 AMM_Master_inst.add_send(0,  80);
+			##300000 AMM_Master_inst.add_send(0, -45);
+			AMM_Master_inst.add_read(1);
+			@(AMM_Master_inst.read_complete);
+			$display("Readed temperature: %d", signed'(AMM_Master_inst.get_read_value()));
+			##300000 AMM_Master_inst.add_send(0, 180);
+			##300000 AMM_Master_inst.add_send(0,   0);
 			##200000 $finish;
 		end
 	join
 
 
-	logic [15:0] temp_address;
-	logic temp_read;
-	logic [31:0] temp_readdata;
-	logic temp_readdatavalid;
-	logic temp_waitrequest;
-	logic [15:0] pwm_address;
-	logic pwm_write;
-	logic [31:0] pwm_writedata;
-	logic pwm_waitrequest;
+	logic [15:0] temp_address      ;
+	logic        temp_read         ;
+	logic [31:0] temp_readdata     ;
+	logic        temp_readdatavalid;
+	logic        temp_waitrequest  ;
+	logic [15:0] pwm_address       ;
+	logic        pwm_write         ;
+	logic [31:0] pwm_writedata     ;
+	logic        pwm_waitrequest   ;
+
+
+	logic [15:0] amm_address      ;
+	logic        amm_write        ;
+	logic [31:0] amm_writedata    ;
+	logic        amm_read         ;
+	logic [31:0] amm_readdata     ;
+	logic        amm_readdatavalid;
+	logic        amm_waitrequest  ;
+
+	AMM_Master #(
+		.ADDR_WIDTH(16)
+	) AMM_Master_inst (
+		.clk            (clk          ),
+		.reset          (reset        ),
+		.amm_address    (amm_address  ),
+		.amm_write      (amm_write    ),
+		.amm_writedata  (amm_writedata),
+		.amm_read       (amm_read     ),
+		.amm_readdata   (amm_readdata ),
+		.amm_waitrequest('0           )
+	);
+
 
 	pid_control #(
 		.SENSOR_ADDR(16'hdead),
@@ -55,7 +88,12 @@ module pid_tb;
 		.pwm_address       (pwm_address       ),
 		.pwm_write         (pwm_write         ),
 		.pwm_writedata     (pwm_writedata     ),
-		.pwm_waitrequest   (pwm_waitrequest   )
+		.pwm_waitrequest   (pwm_waitrequest   ),
+		.csr_address       (amm_address       ),
+		.csr_write         (amm_write         ),
+		.csr_writedata     (amm_writedata     ),
+		.csr_read          (amm_read          ),
+		.csr_readdata      (amm_readdata      )
 	);
 
 	localparam min_wait_request    = 5;

@@ -38,6 +38,7 @@ set design_library {
     {
         ../sim
         {
+        		AMM_Master.sv
             termo_model.c
             pid_tb.sv
         }

@@ -5,8 +5,8 @@ module pid #(
 ) (
 	input                      clk    ,
 	input                      reset  ,
-	input  logic signed [ 7:0] refer  ,
-	input  logic signed [ 7:0] data   ,
+	input  logic signed [15:0] refer  ,
+	input  logic signed [15:0] data   ,
 	input                      enable ,
 	output logic signed [15:0] control
 );
@@ -15,11 +15,11 @@ module pid #(
 	localparam integer b1 = integer'(k_i * 1024);
 	localparam integer b2 = integer'(k_d * 1024);
 
-	logic signed [15:0] error     ;
-	logic signed [15:0] prev_error;
-	logic signed [15:0] prev_int  ;
+	logic signed [31:0] error     ;
+	logic signed [31:0] prev_error;
+	logic signed [31:0] prev_int  ;
 
-	logic signed [15:0] P, I, D;
+	logic signed [31:0] P, I, D;
 
 	assign P = error                ;
 	assign I = (error + prev_int)   ;
@@ -40,7 +40,7 @@ module pid #(
 						begin
 							error      <= refer - data;
 							prev_error <= error;
-							prev_int   <= (I < 0 ) ? 0 : I;							
+							prev_int   <= (I<0)?0:I;							
 						end
 				end
 		end

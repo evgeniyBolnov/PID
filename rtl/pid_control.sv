@@ -36,11 +36,11 @@ module pid_control #(
     TEMP_FINISH
   } temp_state;
 
-  logic signed [ 7:0] readed_temp;
+  logic signed [15:0] readed_temp;
   logic               enable_pid ;
   logic signed [15:0] pid_wire   ;
   logic signed [15:0] pid_data   ;
-  logic signed [ 7:0] refer      ;
+  logic signed [15:0] refer      ;
 
   always_ff @(posedge clk or posedge reset)
     begin
@@ -54,10 +54,15 @@ module pid_control #(
             case (csr_address)
               2'h0 : refer <= csr_writedata;
             endcase
-          if (csr_read)
+          else if (csr_read)
             case (csr_address)
               2'h0 : csr_readdata <= {{24{refer[7]}}, refer};
+              2'h1 : csr_readdata <= readed_temp;
             endcase
+          else
+            begin
+              csr_readdata <= '0;
+            end
         end
     end
 
@@ -130,9 +135,9 @@ module pid_control #(
     end
 
   pid #(
-    .k_p(0.9),
-    .k_i(0.5),
-    .k_d(0.5)
+    .k_p(0.9  ),
+    .k_i(0.0004),
+    .k_d(0.5  )
   ) pid_inst (
     .clk    (clk        ),
     .reset  (reset      ),
